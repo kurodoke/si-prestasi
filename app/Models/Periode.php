@@ -9,16 +9,16 @@ class Periode extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama_periode',
+        'periode',
         'bulan_mulai',
         'tahun_mulai',
         'bulan_selesai',
         'tahun_selesai',
     ];
 
-    public function laporanPenerimas()
+    public function laporanPrestasi()
     {
-        return $this->hasMany(LaporanPenerima::class, 'periode_id');
+        return $this->hasMany(LaporanPrestasi::class, 'periode_id');
     }
 
     public function getLabelAttribute()

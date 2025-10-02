@@ -10,8 +10,8 @@ class DokumenBukti extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    public function laporanPenerima()
+    public function laporanPrestasi()
     {
-        return $this->belongsTo(LaporanPenerima::class);
+        return $this->belongsTo(LaporanPrestasi::class);
     }
 }

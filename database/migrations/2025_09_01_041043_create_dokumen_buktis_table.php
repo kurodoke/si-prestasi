@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dokumen_buktis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('laporan_penerima_id')->constrained()->onDelete('cascade');
+            $table->foreignId('laporan_prestasi_id')->constrained()->onDelete('cascade');
             $table->string('nama_file');
             $table->string('path_file');
             $table->timestamps();

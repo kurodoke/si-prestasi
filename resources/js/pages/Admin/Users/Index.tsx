@@ -1,19 +1,13 @@
-import { DataTable } from '@/components/data-table-account';
+import { DataTable } from '@/components/data-table/account/data-table';
 import { FlashAlert } from '@/components/flash-alert';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
-import { Auth } from '@/types';
+import { Auth, User } from '@/types';
 import { usePage } from '@inertiajs/react';
 import React from 'react';
 
-interface Account {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-}
 
-export default function Index({ auth, accounts }: { auth: Auth; accounts: Account[] }) {
+export default function Index({ auth, accounts }: { auth: Auth; accounts: User[] }) {
     const { flash } = usePage().props as {
         flash?: {
             success?: string;

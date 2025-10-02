@@ -1,80 +1,152 @@
+import AppLayout from '@/layouts/public-app-layout';
+import { Auth, Berita, LaporanPrestasi, Periode } from '@/types';
 import { Head } from '@inertiajs/react';
-import PublicLayout from '@/layouts/public-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Definisikan tipe data props lagi
-interface Penerima {
+import { Blog } from '@/components/blog/blog';
+import { DataTable } from '@/components/data-table/public/data-table';
+import { Hero } from '@/components/hero/public/hero';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Separator } from '@/components/ui/separator';
+import React from 'react';
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis } from 'recharts';
+
+interface LaporanPerPeriode {
     id: number;
-    user: {
-        name: string;
-        program_studi: {
-            nama_prodi: string;
-        };
-    };
-    prestasi: {
-        nama_prestasi: string;
-    };
+    periode: string;
+    bulan_mulai: number;
+    tahun_mulai: number;
+    bulan_selesai: number;
+    tahun_selesai: number;
+    jumlah_laporan: number;
 }
 
-interface PageProps {
-    penerimaPrestasi: Penerima[];
+interface DisplayTotalLaporanPerPeriode {
+    periode: string;
+    jumlah_laporan: number;
 }
 
-export default function Index({ penerimaPrestasi }: PageProps) {
+export default function Dashboard({
+    auth,
+    laporan,
+    berita,
+    total_laporan,
+    laporan_per_periode,
+    periode_aktif,
+}: {
+    auth: Auth;
+    laporan: LaporanPrestasi[];
+    berita: Berita[];
+    total_laporan: number;
+    laporan_per_periode: LaporanPerPeriode[];
+    periode_aktif: Periode;
+}) {
+    const [laporanPerPeriode, setLaporanPerPeriode] = React.useState<DisplayTotalLaporanPerPeriode[]>([]);
+
+    // Warna orange (pie chart)
+    const pieColors = ['#FFA726', '#FB8C00', '#F57C00', '#EF6C00', '#E65100', '#FFB74D', '#FF9800', '#FF8F00', '#FF6F00', '#FF5722'];
+
+    // Warna biru (bar chart)
+    const barColors = ['#42A5F5', '#1E88E5', '#1976D2', '#1565C0', '#0D47A1', '#64B5F6', '#2196F3', '#1E88E5', '#0288D1', '#03A9F4'];
+
+    React.useEffect(() => {
+        if (laporan_per_periode.length !== 0) {
+            const itemLaporanPerPeriode = laporan_per_periode.map((item) => ({
+                periode: `${item.periode} - ${item.tahun_mulai}`,
+                jumlah_laporan: item.jumlah_laporan,
+            }));
+
+            setLaporanPerPeriode(itemLaporanPerPeriode);
+        }
+    }, [laporan_per_periode]);
+
     return (
-        <PublicLayout>
-            <Head title='Selamat Datang di SI Prestasi UNIB' />
-
-            {/* Hero Section */}
-            <section className='w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-800'>
-                <div className='container px-4 md:px-6 text-center'>
-                    <div className='space-y-4'>
-                        <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none'>
-                            Sistem Pendataan Prestasi
-                        </h1>
-                        <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400'>
-                            Platform terpusat untuk pendataan dan verifikasi penerima prestasi di lingkungan Universitas Bengkulu.
-                        </p>
-                    </div>
+        <>
+            <Head title="Dashboard" />
+            <AppLayout>
+                {/* Hero */}
+                <div className="mb-8">
+                    <Hero periode={periode_aktif} />
                 </div>
-            </section>
 
-            {/* Recent Recipients Section */}
-            <section className='w-full py-12 md:py-24 lg:py-32 bg-gray-50 dark:bg-black'>
-                <div className='container px-4 md:px-6'>
-                    <div className='flex flex-col items-center justify-center space-y-4 text-center'>
-                        <div className='space-y-2'>
-                            <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>Penerima Prestasi Terbaru</h2>
-                            <p className='max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400'>
-                                Berikut adalah beberapa mahasiswa yang laporannya baru saja divalidasi oleh admin.
+                {/* Chart */}
+                <div className="mb-8 grid grid-cols-4 gap-4 space-y-4 sm:grid-cols-12">
+                    <Card className="@container/card col-span-12 shadow-xs">
+                        <CardHeader className="text-center">
+                            <h2 className="w-full text-3xl font-semibold text-pretty md:text-4xl lg:text-5xl">Prestasi Terdaftar</h2>
+                            <p className="mb-2 text-muted-foreground md:text-base lg:text-lg">Total Laporan terdaftar per-periode</p>
+                        </CardHeader>
+
+                        <CardContent className="grid grid-cols-4 sm:grid-cols-12">
+                            {/* Pie Chart */}
+                            <div className="col-span-4 sm:col-span-5">
+                                <ChartContainer
+                                    config={{}}
+                                    className="mx-auto aspect-square max-h-[250px] pb-0 [&_.recharts-pie-label-text]:fill-foreground"
+                                >
+                                    <PieChart>
+                                        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                                        <Pie data={laporanPerPeriode} dataKey="jumlah_laporan" nameKey="periode" label>
+                                            {laporanPerPeriode.map((entry, index) => (
+                                                <Cell key={`cell-pie-${index}`} fill={pieColors[index % pieColors.length]} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ChartContainer>
+                            </div>
+
+                            {/* Separator */}
+                            <div className="col-span-4 flex justify-center py-2 sm:col-span-2 sm:py-0">
+                                <Separator orientation={'vertical'} className="hidden border-1 sm:block" />
+                                <Separator orientation={'horizontal'} className="block border-1 sm:hidden" />
+                            </div>
+
+                            {/* Bar Chart */}
+                            <div className="col-span-4 sm:col-span-5">
+                                <ChartContainer config={{}}>
+                                    <BarChart data={laporanPerPeriode}>
+                                        <CartesianGrid vertical={false} />
+                                        <XAxis dataKey="periode" tickLine={false} tickMargin={10} axisLine={false} />
+                                        <ChartTooltip
+                                            cursor={false}
+                                            content={<ChartTooltipContent hideLabel />}
+                                            formatter={(value: number) => `Jumlah laporan: ${value}`}
+                                        />
+                                        <Bar dataKey="jumlah_laporan" radius={[8, 8, 0, 0]}>
+                                            {laporanPerPeriode.map((entry, index) => (
+                                                <Cell key={`cell-bar-${index}`} fill={barColors[index % barColors.length]} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ChartContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Berita */}
+                <div className="mb-8">
+                    <Blog data={berita} />
+                </div>
+
+                {/* Prestasi */}
+                <div className="mb-8 grid grid-cols-4 gap-4 space-y-4 sm:grid-cols-12">
+                    <Card className="@container/card col-span-12 shadow-xs">
+                        <CardHeader className="text-center">
+                            <h2 className="w-full text-3xl font-semibold text-pretty md:text-4xl lg:text-5xl">Terdaftar Terbaru</h2>
+                            <p className="mb-2 text-muted-foreground md:text-base lg:text-lg">
+                                Cuplikan informasi prestasi dari mahasiswa yang baru diverifikasi
                             </p>
-                        </div>
-                    </div>
-                    {penerimaPrestasi.length > 0 ? (
-                        <div className='mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12'>
-                            {penerimaPrestasi.map((item) => (
-                                <Card key={item.id}>
-                                    <CardHeader>
-                                        <CardTitle>{item.user.name}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-1">
-                                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                                            {item.user.program_studi.nama_prodi}
-                                        </p>
-                                        <p className="text-md font-semibold text-gray-800 dark:text-white">
-                                            {item.prestasi.nama_prestasi}
-                                        </p>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    ) : (
-                         <div className="text-center mt-12 text-gray-500">
-                            Belum ada data penerima prestasi yang bisa ditampilkan.
-                        </div>
-                    )}
+                        </CardHeader>
+
+                        <CardContent className="grid grid-cols-4 sm:grid-cols-12">
+                            <div className="col-span-4 sm:col-span-12">
+                                <DataTable data={laporan} />
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
-            </section>
-        </PublicLayout>
+            </AppLayout>
+        </>
     );
 }

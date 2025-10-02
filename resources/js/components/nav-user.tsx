@@ -1,10 +1,9 @@
-import { LogOutIcon, MoreVerticalIcon, UserCircleIcon } from 'lucide-react';
+import { LogOutIcon, MoreVerticalIcon } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -25,6 +24,17 @@ export function NavUser({
 }) {
     const { isMobile } = useSidebar();
 
+    function getInitials(name: string): string {
+        if (!name) return '??';
+
+        const words = name.trim().split(/\s+/); // Pisah berdasarkan spasi
+        if (words.length === 1) {
+            return words[0].substring(0, 2).toUpperCase();
+        }
+
+        return (words[0][0] + words[1][0]).toUpperCase();
+    }
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -33,7 +43,7 @@ export function NavUser({
                         <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                             <Avatar className="h-8 w-8 rounded-lg grayscale">
                                 <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                                <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">{user.name}</span>
@@ -52,7 +62,7 @@ export function NavUser({
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage src={user.avatar} alt={user.name} />
-                                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                                    <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-medium">{user.name}</span>
@@ -61,14 +71,7 @@ export function NavUser({
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <UserCircleIcon />
-                                Account
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <Link href={logout()} className='w-full'>
+                        <Link href={logout()} className="w-full">
                             <DropdownMenuItem>
                                 <LogOutIcon />
                                 Log out

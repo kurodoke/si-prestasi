@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\LaporanPenerima;
+use App\Models\LaporanPrestasi;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,19 +33,17 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'npm' => 'required|string|max:255|unique:users,npm', // Pastikan validasi NPM ada
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
-            'npm' => $request->npm, // Pastikan NPM disimpan
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        $laporan = LaporanPenerima::where('npm', $user->npm)->whereNull('user_id')->first();
+        $laporan = LaporanPrestasi::where('npm', $user->npm)->whereNull('user_id')->first();
         if ($laporan) {
             $laporan->user_id = $user->id;
             $laporan->nama_mahasiswa = $user->name; 

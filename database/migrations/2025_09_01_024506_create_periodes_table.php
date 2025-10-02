@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('periodes', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_periode'); 
+            $table->enum('periode', ['Ganjil', 'Genap']);
             $table->unsignedTinyInteger('bulan_mulai');  
             $table->unsignedSmallInteger('tahun_mulai'); 
             $table->unsignedTinyInteger('bulan_selesai'); 
